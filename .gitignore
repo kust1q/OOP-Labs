@@ -39,3 +39,6 @@
 
 # debug information files
 *.dwo
+/labs/lab1/var9/.cache
+/labs/lab1/var9/build
+
