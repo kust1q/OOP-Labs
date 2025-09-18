@@ -25,6 +25,10 @@ TEST(test_06, StringWithZerosBegin) {
     EXPECT_EQ(filter::Filter("aaa0014aaa23456789"), (std::vector<std::string>{"14", "23456789"}));
 }
 
+TEST(test_07, StringWithOnlyLetters) {
+    EXPECT_EQ(filter::Filter("AAAAAAAAAAaaaaaaaaAAAAA"), (std::vector<std::string>{}));
+}
+
 int main(int argc, char **argv) {
     testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
