@@ -4,5 +4,5 @@
 #include <vector>
 
 namespace filter {
-    std::vector<std::string> filter(const std::string& input);
+    std::vector<std::string> Filter(const std::string& input);
 }

@@ -3,28 +3,27 @@
 #include <vector>
 
 TEST(test_01, EmptyString) {
-    EXPECT_EQ(filter::filter(""), (std::vector<std::string>{}));
+    EXPECT_EQ(filter::Filter(""), (std::vector<std::string>{}));
 }
 
 TEST(test_02, ZeroString) {
-    EXPECT_EQ(filter::filter("0000"), (std::vector<std::string>{}));
+    EXPECT_EQ(filter::Filter("0000"), (std::vector<std::string>{}));
 }
 
-
 TEST(test_03, SimpleString) {
-    EXPECT_EQ(filter::filter("a111a"), (std::vector<std::string>{"111"}));
+    EXPECT_EQ(filter::Filter("a111a"), (std::vector<std::string>{"111"}));
 }
 
 TEST(test_04, StringWithMoreNums) {
-    EXPECT_EQ(filter::filter("a111a222a"), (std::vector<std::string>{"111", "222"}));
+    EXPECT_EQ(filter::Filter("a111a222a"), (std::vector<std::string>{"111", "222"}));
 }
 
 TEST(test_05, StringWithAllNumbers) {
-    EXPECT_EQ(filter::filter("123456789"), (std::vector<std::string>{"123456789"}));
+    EXPECT_EQ(filter::Filter("123456789"), (std::vector<std::string>{"123456789"}));
 }
 
 TEST(test_06, StringWithZerosBegin) {
-    EXPECT_EQ(filter::filter("aaa0014aaa23456789"), (std::vector<std::string>{"14", "23456789"}));
+    EXPECT_EQ(filter::Filter("aaa0014aaa23456789"), (std::vector<std::string>{"14", "23456789"}));
 }
 
 int main(int argc, char **argv) {

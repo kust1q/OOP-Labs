@@ -5,7 +5,7 @@
 #include <filter.h>
 
 namespace filter {
-    std::vector<std::string> filter(const std::string& input) {
+    std::vector<std::string> Filter(const std::string& input) {
         std::vector<std::string> numbers{};
         std::string buf = "";
         for (size_t i = 0; i < input.length(); ++i) {
