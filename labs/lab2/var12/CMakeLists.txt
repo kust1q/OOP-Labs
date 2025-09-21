@@ -22,13 +22,14 @@ set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
 include_directories(include)
-add_library(lab_lib src/money.cpp)
+add_library(money_lib src/money.cpp)
+add_library(vector_lib src/vector.cpp)
 
 add_executable(main main.cpp)
-target_link_libraries(main lab_lib)
+target_link_libraries(main money_lib vector_lib)
 
 
 enable_testing()
 add_executable(lab_tests tests/tests.cpp)
-target_link_libraries(lab_tests lab_lib gtest_main)
+target_link_libraries(lab_tests money_lib vector_lib gtest_main)
 add_test(NAME lab_tests COMMAND lab_tests)

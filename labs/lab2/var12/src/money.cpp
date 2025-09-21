@@ -1,134 +1,62 @@
 #include "money.h"
-#include <cstddef>
+#include "exceptions.h"
+#include "vector.h"
+
 
 namespace money {
-    Money::Money(): sz_(0), arr_(nullptr) {};
+    Money::Money(): arr_(vector::Vector())  {};
 
-    Money::Money(const size_t& n, unsigned char c): sz_(n), arr_(new unsigned char[sz_]) {
-        for (size_t i = 0; i < sz_; ++i) {
-            arr_[i] = c;
+    Money::Money(const size_t& n, unsigned char c): arr_(vector::Vector(n, c)) {};
+
+    Money::Money(const std::initializer_list<unsigned char>& init): arr_(vector::Vector(init.size(), 0)) {
+        size_t i = init.size() - 1;
+        for (unsigned char c: init) {
+            arr_.Get(i) = c;
+            --i;
+        }
+        unsigned char back = arr_.Back();
+        while (back == 0) {
+            arr_.PopBack();
+            back = arr_.Back();
         }
     };
 
-    Money::Money(const std::initializer_list<unsigned char>& init){
-        size_t i = 0;
-        for (unsigned char c: init) {
-            if (c != 0) {
-                break;
-            }
-            ++i;
-        }
-        sz_ = init.size() - i;
-        arr_ = new unsigned char[sz_];
-        size_t j = 0;
-        for (unsigned char c: init) {
-            if (j < i) {
-                ++j;
-                continue;
-            }
-            arr_[sz_ - (j - i) - 1] = c;
-            ++j;
-        }
-    };
-
-    Money::Money(const std::string& s) {
-        size_t l = 0;
-        size_t r = s.length() - 1;
-
+    Money::Money(const std::string& s): arr_(vector::Vector(s.length(), 0)) {
+        size_t i = s.length() - 1;
         for (char c: s) {
-            if (c == '0') {
-                ++l;
-            } else {
-                break;
-            }
-        }
-
-        sz_ = r - l + 1;
-        arr_ = new unsigned char[sz_];
-        size_t i = sz_ - 1;
-        while (l <= r) {
-            if (s[l] < '0' || s[l]> '9') {
-                delete[] arr_; 
+            if (c < '0' || c > '9') {
                 throw exceptions::NotNumberExceptions("Not a number!");
             }
-            arr_[i] = s[l] - '0';
+            arr_.Get(i) = c - '0';
             --i;
-            ++l;
+        }
+        unsigned char back = arr_.Back();
+        while (back == 0) {
+            arr_.PopBack();
+            back = arr_.Back();
         }
     };
 
-    Money::Money(const Money& other) noexcept: sz_(other.sz_), arr_(new unsigned char [sz_]) {
-        for (size_t i = 0; i < sz_; ++i) {
-            arr_[i] = other.arr_[i];
-        }
-    };
+    Money::Money(const Money& other) noexcept: arr_(other.arr_) {};
 
-    Money::Money(Money&& other): sz_(other.sz_), arr_(other.arr_) {
-        other.arr_ = nullptr;
-        other.sz_ = 0;
-    };
+    Money::Money(Money&& other): arr_(std::move(other.arr_)) {};
         
     Money::~Money() noexcept {
-        delete [] arr_;
+        arr_.Clear();
     };
 
-    Money Money::Add(const Money& other) const {
-        unsigned char sum = 0;
-        std::string res;
-        for (size_t g = 0; g < std::max(sz_, other.sz_); ++g) {
-            if (g >= sz_) {
-                sum += other.arr_[g];
-            } else if (g >= other.sz_) {
-                sum += arr_[g];
-            } else {
-                sum += (arr_[g] + other.arr_[g]);
-            }
-            res += (sum % 10) + '0';
-            sum /= 10;
-        }
-        if (sum == 1) {
-            res += '1';
-        }
-        std::reverse(res.begin(), res.end());
-        return Money(res);
-    };
-
-    Money Money::Sub(const Money& other) const {
-        if (LT(other)) {
-            throw exceptions::NegativeBalanceExceptions("Negative balance!");
-        }
-        std::string res;
-        size_t i = 0;
-        for (size_t g = 0; g < other.sz_; ++g) {
-            i = g + 1;
-            if (arr_[g] < other.arr_[g]) {
-                res += (10 + arr_[g] - other.arr_[g]) + '0';
-                --arr_[g + 1];  
-                continue;
-            }
-            res += (arr_[g] - other.arr_[g]) + '0';
-        }
-        while (i < sz_) {
-            res += arr_[i] + '0';
-            ++i;
-        }
-        std::reverse(res.begin(), res.end());
-        return Money(res);
-    };
-
-    void Money::Copy(Money other) {
-        std::swap(arr_, other.arr_);
-        std::swap(sz_, other.sz_);
+    void Money::Copy(const Money& other) {
+        arr_.Copy(other.arr_);
     };
 
     bool Money::GT(const Money& other) const {
-        if (sz_ > other.sz_) {
+        if (arr_.Size() > other.arr_.Size()) {
             return true;
-        } else if (other.sz_ > sz_) {
+        } else if (other.arr_.Size() > arr_.Size()) {
             return false;
         }
-        for (int64_t i = sz_ - 1; i >= 0; --i) {
-            if (arr_[i] > other.arr_[i]) {
+        for (int64_t i = arr_.Size() - 1; i >= 0; --i) {
+            if (arr_.Get(i) > other.arr_.Get(i)) {
                 return true;
             }
         }
@@ -136,13 +64,13 @@ namespace money {
     };
 
     bool Money::LT(const Money& other) const {
-        if (sz_ < other.sz_) {
+        if (arr_.Size() < other.arr_.Size()) {
             return true;
-        } else if (other.sz_ < sz_) {
+        } else if (other.arr_.Size() < arr_.Size()) {
             return false;
         }
-        for (int64_t i = sz_ - 1; i >= 0; --i) {
-            if (arr_[i] < other.arr_[i]) {
+        for (int64_t i = arr_.Size() - 1; i >= 0; --i) {
+            if (arr_.Get(i) < other.arr_.Get(i)) {
                 return true;
             }
         }
@@ -150,26 +78,78 @@ namespace money {
     };
 
     bool Money::EQ(const Money& other) const {
-        return !GT(other) && !LT(other);
+        if (other.arr_.Size() != arr_.Size()) {
+            return false;
+        }
+        for (int64_t i = arr_.Size() - 1; i >= 0; --i) {
+            if (arr_.Get(i) != other.arr_.Get(i)) {
+                return false;
+            }
+        }
+        return true;
     };
 
     std::string Money::CheckBalance() const {
-        if (sz_ == 0) {
+        if (arr_.Size() == 0) {
             return "0k.";
         }
         std::string kopecks;
-        if (sz_ <= 2) {
-            for (int64_t i = sz_ - 1; i >= 0; --i) {
-                kopecks += (arr_[i] + '0');
+        if (arr_.Size() <= 2) {
+            for (int64_t i = arr_.Size() - 1; i >= 0; --i) {
+                kopecks += (arr_.Get(i) + '0');
             }
             return (kopecks + "k.");
         }
         std::string rubles;
-        for (size_t i = sz_ - 1; i > 1; --i) {
-            rubles += (arr_[i] + '0');
+        for (size_t i = arr_.Size() - 1; i > 1; --i) {
+            rubles += (arr_.Get(i) + '0');
         }
-        kopecks += (arr_[1] + '0');
-        kopecks += (arr_[0] + '0');
+        kopecks += (arr_.Get(1) + '0');
+        kopecks += (arr_.Get(0) + '0');
         return (rubles + "P. " + kopecks + "k.");
     };
+
+    Money Add(const Money& m1, const Money& m2) {
+        Money m3;
+        unsigned char sum = 0;
+        for (size_t i = 0; i < std::max(m2.arr_.Size(), m1.arr_.Size()); ++i) {
+            if (i >= m1.arr_.Size()) {
+                sum += m2.arr_.Get(i);
+            } else if (i >= m2.arr_.Size()) {
+                sum += m1.arr_.Get(i);
+            } else {
+                sum += (m1.arr_.Get(i) + m2.arr_.Get(i));
+            }
+            m3.arr_.PushBack(sum % 10);
+            sum /= 10;
+        }
+        if (sum == 1) {
+            m3.arr_.PushBack(sum);
+        }
+        return m3;
+    }
+
+    Money Sub(const Money& m1, const Money& m2) {
+        if (m1.LT(m2)) {
+            throw exceptions::NegativeBalanceExceptions("Negative balance!");
+        } else if (m1.EQ(m2)) {
+            return Money();
+        }
+
+        Money m3 = m1;
+        for (size_t i = 0; i < m2.arr_.Size(); ++i) {
+            if (m3.arr_.Get(i) < m2.arr_.Get(i)) {
+                m3.arr_.Get(i) += (10 - m2.arr_.Get(i));
+                --m3.arr_.Get(i + 1);
+                continue;
+            }
+            m3.arr_.Get(i) -= m2.arr_.Get(i);
+        }
+        unsigned char back = m3.arr_.Back();
+        while (back == 0) {
+            m3.arr_.PopBack();
+            back = m3.arr_.Back();
+        }
+        return m3;
+    }
 }

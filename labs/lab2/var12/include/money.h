@@ -10,13 +10,16 @@
 #include <vector>
 #include <string>
 
+#include "vector.h"
 #include "exceptions.h"
 
 namespace money {
     class Money {
+        friend Money Add(const Money& m1, const Money& m2);
+        friend Money Sub(const Money& m1, const Money& m2);
+        
       private:
-        size_t sz_;
-        unsigned char* arr_;
+        vector::Vector arr_;
 
       public:
         Money();
@@ -33,11 +36,7 @@ namespace money {
         
         ~Money() noexcept;
 
-        Money Add(const Money& other) const;
-
-        Money Sub(const Money& other) const;
-
-        void Copy(Money other);
+        void Copy(const Money& other);
 
         bool GT(const Money& other) const;
 
@@ -47,4 +46,8 @@ namespace money {
 
         std::string CheckBalance() const;
     };
+
+    Money Add(const Money& m1, const Money& m2);
+
+    Money Sub(const Money& m1, const Money& m2);
 }
