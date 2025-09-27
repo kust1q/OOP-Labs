@@ -51,34 +51,34 @@ TEST(test_06, MoveConstructor) {
 TEST(test_07, AddMethod) {
     money::Money m1("123");
     money::Money m2("456");
-    money::Money result = Add(m1, m2);
+    money::Money result = money::Money::Add(m1, m2);
     EXPECT_EQ(result.CheckBalance(), "5P. 79k.");
     
     money::Money m3("999");
     money::Money m4("1");
-    money::Money result2 = Add(m3,m4);
+    money::Money result2 = money::Money::Add(m3,m4);
     EXPECT_EQ(result2.CheckBalance(), "10P. 00k.");
     
     money::Money m5("50");
     money::Money m6("50"); 
-    money::Money result3 = Add(m5,m6);
+    money::Money result3 = money::Money::Add(m5,m6);
     EXPECT_EQ(result3.CheckBalance(), "1P. 00k."); 
 }
 
 TEST(test_08, SubMethod) {
     money::Money m1("1000");
     money::Money m2("500");
-    money::Money result = Sub(m1, m2);
+    money::Money result = money::Money::Sub(m1, m2);
     EXPECT_EQ(result.CheckBalance(), "5P. 00k.");
     
     money::Money m3("150");
     money::Money m4("75");
-    money::Money result2 = Sub(m3,m4);
+    money::Money result2 = money::Money::Sub(m3,m4);
     EXPECT_EQ(result2.CheckBalance(), "75k.");
 
     money::Money m7("50");
     money::Money m8("100");
-    EXPECT_THROW(Sub(m7, m8), exceptions::NegativeBalanceExceptions);
+    EXPECT_THROW(money::Money::Sub(m7, m8), exceptions::NegativeBalanceExceptions);
 }
 
 TEST(test_09, ComparisonMethods) {

@@ -107,7 +107,7 @@ namespace money {
         return (rubles + "P. " + kopecks + "k.");
     };
 
-    Money Add(const Money& m1, const Money& m2) {
+    Money Money::Add(const Money& m1, const Money& m2) {
         Money m3;
         unsigned char sum = 0;
         for (size_t i = 0; i < std::max(m2.arr_.Size(), m1.arr_.Size()); ++i) {
@@ -127,7 +127,7 @@ namespace money {
         return m3;
     }
 
-    Money Sub(const Money& m1, const Money& m2) {
+    Money Money::Sub(const Money& m1, const Money& m2) {
         if (m1.LT(m2)) {
             throw exceptions::NegativeBalanceExceptions("Negative balance!");
         } else if (m1.EQ(m2)) {

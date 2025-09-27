@@ -14,10 +14,7 @@
 #include "exceptions.h"
 
 namespace money {
-    class Money {
-        friend Money Add(const Money& m1, const Money& m2);
-        friend Money Sub(const Money& m1, const Money& m2);
-        
+    class Money {  
       private:
         vector::Vector arr_;
 
@@ -45,9 +42,9 @@ namespace money {
         bool EQ(const Money& other) const;
 
         std::string CheckBalance() const;
+
+        static Money Add(const Money& m1, const Money& m2);
+
+        static Money Sub(const Money& m1, const Money& m2);
     };
-
-    Money Add(const Money& m1, const Money& m2);
-
-    Money Sub(const Money& m1, const Money& m2);
 }
