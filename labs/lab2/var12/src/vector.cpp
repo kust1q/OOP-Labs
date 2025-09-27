@@ -12,7 +12,7 @@ namespace vector {
     }
 
     Vector::Vector(const Vector& other) : sz_(other.sz_), cap_(other.cap_) {
-        arr_ = reinterpret_cast<unsigned char*>(new int8_t[cap_ * sizeof(unsigned char)]);
+        arr_ = reinterpret_cast<unsigned char*>(new unsigned char[cap_]);
         for (size_t i = 0; i < sz_; ++i) {
             new (arr_ + i) unsigned char(std::move(other.arr_[i]));
         }
@@ -26,7 +26,7 @@ namespace vector {
 
     Vector::Vector(std::initializer_list<unsigned char> init) : sz_(init.size()) {
         cap_ = init.size() < 10 ? 10 : init.size();  // NOLINT
-        arr_ = reinterpret_cast<unsigned char*>(new int8_t[cap_]);
+        arr_ = reinterpret_cast<unsigned char*>(new unsigned char[cap_]);
         size_t i = 0;
         for (unsigned char val : init) {
             new (arr_ + i) unsigned char(std::move(val));
