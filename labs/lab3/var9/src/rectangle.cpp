@@ -85,7 +85,7 @@ namespace figure {
         return !(lf == rf);
     }
 
-    std::ostream& operator<<(std::ostream& os, const figure::Rectangle& r) {
+    std::ostream& operator<<(std::ostream& os, const Rectangle& r) {
         Point p;
         for (size_t i = 0; i < 4; ++i) {
            p = *r.points[i];
@@ -94,7 +94,7 @@ namespace figure {
         return os;
     }
 
-    std::istream& operator>>(std::istream& is, figure::Rectangle& r) {
+    std::istream& operator>>(std::istream& is, Rectangle& r) {
         Point p1, p2, p3, p4;
         is >> p1;
         is >> p2;
