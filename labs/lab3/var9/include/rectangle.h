@@ -9,12 +9,12 @@ namespace figure {
         friend std::ostream& operator<<(std::ostream& os, const Rectangle& r);
         friend std::istream& operator>>(std::istream& is, Rectangle& r);
       private:
-        Point* points[4];
+        Point* points[RECTANGLEANGLES];
 
         bool Validate(Point p1, Point p2, Point p3, Point p4) const;
         void Clear();
       public:
-        Rectangle() = default;
+        Rectangle();
         Rectangle(Point p1, Point p2, Point p3, Point p4);
         Rectangle(const Rectangle& other);
         Rectangle& operator=(const Rectangle& other);

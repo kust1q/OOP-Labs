@@ -49,15 +49,11 @@ namespace vector {
 
         ~Vector();
 
+        void swap(Vector& other) noexcept;
+
     private:
         size_t sz_;
         size_t cap_;
         figure::Figure** arr_;
-
-        void Swap(Vector& v) {
-            std::swap(v.arr_, arr_);
-            std::swap(v.sz_, sz_);
-            std::swap(v.cap_, cap_);
-        }
     };
 }

@@ -1,16 +1,11 @@
 #pragma once
 
-#include <exception>
+#include <stdexcept>
 #include <string>
 
 namespace exceptions {
-    class InvalidPointsException: std::exception {
+    class InvalidPointsException: std::runtime_error {
     public:
-        explicit InvalidPointsException(const std::string& text): error_message_(text) {}
-        const char* what() const noexcept override {
-            return error_message_.data();
-        }
-    private:
-        std::string error_message_;
+        explicit InvalidPointsException(const std::string& text): std::runtime_error(text) {}
     };
 }

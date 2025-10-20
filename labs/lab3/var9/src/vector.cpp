@@ -55,13 +55,13 @@ namespace vector {
         for (size_t i = 0; i < sz_; i++) {
             new_arr[i] = arr_[i];
         }
-        delete[] reinterpret_cast<int8_t*>(arr_);
+        delete[] arr_;
         arr_ = new_arr;
         cap_ = new_cap;
     }
 
     void Vector::Clear() noexcept {
-        delete[] reinterpret_cast<int8_t*>(arr_);
+        delete[] arr_;
         arr_ = nullptr;
         sz_ = 0;
     }
@@ -126,6 +126,12 @@ namespace vector {
     }
 
     Vector::~Vector() {
-        delete[] reinterpret_cast<int8_t*>(arr_);
+        delete[] arr_;
+    }
+
+    void Vector::swap(Vector& other) noexcept {
+        std::swap(sz_, other.sz_);
+        std::swap(cap_, other.cap_);
+        std::swap(arr_, other.arr_);
     }
 }

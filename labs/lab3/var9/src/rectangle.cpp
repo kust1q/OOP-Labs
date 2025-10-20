@@ -2,6 +2,13 @@
 #include "exceptions.h"
 
 namespace figure {
+    Rectangle::Rectangle() {
+        points[0] = new Point(0, 0);
+        points[1] = new Point(0, 1);
+        points[2] = new Point(1, 1);
+        points[3] = new Point(1, 0);
+    }
+
     Rectangle::Rectangle(Point p1, Point p2, Point p3, Point p4){
         points[0] = new Point(p1.x, p1.y);
         points[1] = new Point(p2.x, p2.y);
@@ -45,7 +52,11 @@ namespace figure {
             return *this;
         }
         for (size_t i = 0; i < 4; ++i) {
-            points[i] = new Point(other.points[i]->x, other.points[i]->y);
+            if (points[i] == nullptr) {
+                points[i] = new Point(other.points[i]->x, other.points[i]->y);
+            } else {
+                *points[i] = *other.points[i];
+            }
         }
         return *this;
     }
@@ -67,6 +78,7 @@ namespace figure {
     void Rectangle::Clear() {
         for (size_t i = 0; i < 4; ++i) {
             delete points[i];
+            points[i] = nullptr;
         }
     }
 
@@ -88,8 +100,7 @@ namespace figure {
     std::ostream& operator<<(std::ostream& os, const Rectangle& r) {
         Point p;
         for (size_t i = 0; i < 4; ++i) {
-           p = *r.points[i];
-           os << p;
+           os << *r.points[i];
         }
         return os;
     }
@@ -100,14 +111,8 @@ namespace figure {
         is >> p2;
         is >> p3;
         is >> p4;
-        r.points[0] = new Point(p1.x, p1.y);
-        r.points[1] = new Point(p2.x, p2.y);
-        r.points[2] = new Point(p3.x, p3.y);
-        r.points[3] = new Point(p4.x, p4.y);
-        if (!r.Validate(p1, p2, p3, p4)) {
-            r.Clear();
-            throw exceptions::InvalidPointsException("Invalid points to create a rectangle");
-        }
+        Rectangle temp(p1, p2, p3, p4);
+        std::swap(r, temp);
         return is;
     }
 }

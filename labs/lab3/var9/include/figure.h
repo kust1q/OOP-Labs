@@ -8,6 +8,9 @@
 
 namespace figure {
     const double EPS = 1e-9;
+    const int16_t TRIANGLEANGLES = 3;
+    const int16_t SQUAREANGLES = 4;
+    const int16_t RECTANGLEANGLES = 4;
 
     class Point {
       public:
