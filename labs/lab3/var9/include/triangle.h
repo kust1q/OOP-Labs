@@ -14,7 +14,7 @@ namespace figure {
         bool Validate(Point p1, Point p2, Point p3) const;
         void Clear();
       public:
-        Triangle() = default;
+        Triangle();
         Triangle(Point p1, Point p2, Point p3);
         Triangle(const Triangle& other);
         Triangle& operator=(const Triangle& other);

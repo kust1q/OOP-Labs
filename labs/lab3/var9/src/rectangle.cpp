@@ -51,7 +51,7 @@ namespace figure {
         if (&other == this) {
             return *this;
         }
-        for (size_t i = 0; i < 4; ++i) {
+        for (size_t i = 0; i < RECTANGLEANGLES; ++i) {
             if (points[i] == nullptr) {
                 points[i] = new Point(other.points[i]->x, other.points[i]->y);
             } else {
@@ -112,7 +112,7 @@ namespace figure {
         is >> p3;
         is >> p4;
         Rectangle temp(p1, p2, p3, p4);
-        std::swap(r, temp);
+        std::swap(r.points, temp.points);
         return is;
     }
 }

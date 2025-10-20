@@ -2,6 +2,12 @@
 #include "exceptions.h"
 
 namespace figure {
+    Triangle::Triangle(){
+        points[0] = new Point(0, 0);
+        points[1] = new Point(2, 0);
+        points[2] = new Point(1, std::sqrt(3));
+    }
+
     Triangle::Triangle(Point p1, Point p2, Point p3){
         points[0] = new Point(p1.x, p1.y);
         points[1] = new Point(p2.x, p2.y);
@@ -13,14 +19,14 @@ namespace figure {
     }
 
     Triangle::Triangle(const Triangle& other) {
-        for (size_t i = 0; i < 4; ++i) {
+        for (size_t i = 0; i < TRIANGLEANGLES; ++i) {
             points[i] = new Point(other.points[i]->x, other.points[i]->y);
         }
     }
 
     bool Triangle::Validate(Point p1, Point p2, Point p3) const {
         Point points_arr[4] = {p1, p2, p3};
-        for (int i = 0; i < 3; ++i) {
+        for (int i = 0; i < TRIANGLEANGLES; ++i) {
             for (int j = i + 1; j < 3; ++j) {
                 if (points_arr[i] == points_arr[j]) {
                     return false;
@@ -46,8 +52,12 @@ namespace figure {
         if (&other == this) {
             return *this;
         }
-        for (size_t i = 0; i < 4; ++i) {
-            points[i] = new Point(other.points[i]->x, other.points[i]->y);
+        for (size_t i = 0; i < TRIANGLEANGLES; ++i) {
+            if (points[i] == nullptr) {
+                points[i] = new Point(other.points[i]->x, other.points[i]->y);
+            } else {
+                *points[i] = *other.points[i];
+            }
         }
         return *this;
     }
@@ -67,8 +77,9 @@ namespace figure {
     }
 
     void Triangle::Clear() {
-        for (size_t i = 0; i < 3; ++i) {
+        for (size_t i = 0; i < TRIANGLEANGLES; ++i) {
             delete points[i];
+            points[i] = nullptr;
         }
     }
 
@@ -87,7 +98,7 @@ namespace figure {
     }
 
     std::ostream& operator<<(std::ostream& os, const Triangle& t) {
-        for (size_t i = 0; i < 3; ++i) {
+        for (size_t i = 0; i < TRIANGLEANGLES; ++i) {
             os << *t.points[i];
         }
         return os;
@@ -98,13 +109,8 @@ namespace figure {
         is >> p1;
         is >> p2;
         is >> p3;
-        t.points[0] = new Point(p1.x, p1.y);
-        t.points[1] = new Point(p2.x, p2.y);
-        t.points[2] = new Point(p3.x, p3.y);
-        if (!t.Validate(p1, p2, p3)) {
-            t.Clear();
-            throw exceptions::InvalidPointsException("Invalid points to create a rectangle");
-        }
+        Triangle temp(p1, p2, p3);
+        std::swap(t.points, temp.points);
         return is;
     }
 }

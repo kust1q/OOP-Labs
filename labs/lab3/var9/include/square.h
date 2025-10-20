@@ -14,7 +14,7 @@ namespace figure {
         bool Validate(Point p1, Point p2, Point p3, Point p4) const;
         void Clear();
       public:
-        Square() = default;
+        Square();
         Square(Point p1, Point p2, Point p3, Point p4);
         Square(const Square& other);
         Square& operator=(const Square& other);

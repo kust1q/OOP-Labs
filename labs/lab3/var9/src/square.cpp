@@ -1,7 +1,16 @@
 #include "square.h"
 #include "exceptions.h"
+#include "figure.h"
 
 namespace figure {
+    Square::Square() {
+        points[0] = new Point(0, 0);
+        points[1] = new Point(0, 1);
+        points[2] = new Point(1, 1);
+        points[3] = new Point(1, 0);
+    }
+
+
     Square::Square(Point p1, Point p2, Point p3, Point p4){
         points[0] = new Point(p1.x, p1.y);
         points[1] = new Point(p2.x, p2.y);
@@ -14,14 +23,18 @@ namespace figure {
     }
 
     Square::Square(const Square& other) {
-        for (size_t i = 0; i < 4; ++i) {
-            points[i] = new Point(other.points[i]->x, other.points[i]->y);
+        for (size_t i = 0; i < SQUAREANGLES; ++i) {
+            if (points[i] == nullptr) {
+                points[i] = new Point(other.points[i]->x, other.points[i]->y);
+            } else {
+                *points[i] = *other.points[i];
+            }
         }
     }
 
     bool Square::Validate(Point p1, Point p2, Point p3, Point p4) const {
         Point points_arr[4] = {p1, p2, p3, p4};
-        for (int i = 0; i < 4; ++i) {
+        for (int i = 0; i < SQUAREANGLES; ++i) {
             for (int j = i + 1; j < 4; ++j) {
                 if (points_arr[i] == points_arr[j]) {
                     return false;
@@ -75,8 +88,9 @@ namespace figure {
     }
 
     void Square::Clear() {
-        for (size_t i = 0; i < 4; ++i) {
+        for (size_t i = 0; i < SQUAREANGLES; ++i) {
             delete points[i];
+            points[i] = nullptr;
         }
     }
 
@@ -96,26 +110,20 @@ namespace figure {
     }
 
     std::ostream& operator<<(std::ostream& os, const Square& s) {
-        for (size_t i = 0; i < 4; ++i) {
+        for (size_t i = 0; i < SQUAREANGLES; ++i) {
             os << s.points[i];
         }
         return os;
     }
 
     std::istream& operator>>(std::istream& is, Square& s) {
-                Point p1, p2, p3, p4;
+        Point p1, p2, p3, p4;
         is >> p1;
         is >> p2;
         is >> p3;
         is >> p4;
-        s.points[0] = new Point(p1.x, p1.y);
-        s.points[1] = new Point(p2.x, p2.y);
-        s.points[2] = new Point(p3.x, p3.y);
-        s.points[3] = new Point(p4.x, p4.y);
-        if (!s.Validate(p1, p2, p3, p4)) {
-            s.Clear();
-            throw exceptions::InvalidPointsException("Invalid points to create a square");
-        }
+        Square temp(p1, p2, p3, p4);
+        std::swap(s.points, temp.points);
         return is;
     }
 }
