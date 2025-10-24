@@ -9,10 +9,9 @@ namespace figure {
         friend std::ostream& operator<<(std::ostream& os, const Square& r);
         friend std::istream& operator>>(std::istream& is, Square& r);
       private:
-        Point* points[SQUAREANGLES];
+        Point* points;
 
         bool Validate(Point p1, Point p2, Point p3, Point p4) const;
-        void Clear();
       public:
         Square();
         Square(Point p1, Point p2, Point p3, Point p4);

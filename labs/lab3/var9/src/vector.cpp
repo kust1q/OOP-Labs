@@ -115,13 +115,13 @@ namespace vector {
 
     void Vector::SeparateCenter() {
         for (size_t i = 0; i < sz_; ++i) {
-            std::cout << "Центр фигуры " << i + 1 << ": " << arr_[i]->Center() << std::endl;
+            std::cout << "Figure's center " << i + 1 << ": " << arr_[i]->Center() << std::endl;
         }
     }
 
     void Vector::SeparateArea() {
         for (size_t i = 0; i < sz_; ++i) {
-            std::cout << "Площадь фигуры " << i + 1 << ": " << arr_[i]->Area() << std::endl;
+            std::cout << "Figure's area " << i + 1 << ": " << arr_[i]->Area() << std::endl;
         }
     }
 
@@ -129,9 +129,9 @@ namespace vector {
         delete[] arr_;
     }
 
-    void Vector::swap(Vector& other) noexcept {
-        std::swap(sz_, other.sz_);
-        std::swap(cap_, other.cap_);
-        std::swap(arr_, other.arr_);
+    void swap(Vector& v1, Vector& v2) noexcept {
+        std::swap(v1.sz_, v2.sz_);
+        std::swap(v1.cap_, v2.cap_);
+        std::swap(v1.arr_, v2.arr_);
     }
 }

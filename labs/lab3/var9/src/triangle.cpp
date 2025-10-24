@@ -1,34 +1,30 @@
 #include "triangle.h"
 #include "exceptions.h"
+#include "figure.h"
 
 namespace figure {
-    Triangle::Triangle(){
-        points[0] = new Point(0, 0);
-        points[1] = new Point(2, 0);
-        points[2] = new Point(1, std::sqrt(3));
+    Triangle::Triangle(): Triangle( Point(0, 0), Point(2, 0), Point(1, std::sqrt(3))) {
     }
 
     Triangle::Triangle(Point p1, Point p2, Point p3){
-        points[0] = new Point(p1.x, p1.y);
-        points[1] = new Point(p2.x, p2.y);
-        points[2] = new Point(p3.x, p3.y);
         if (!Validate(p1, p2, p3)) {
-            Clear();
-            throw exceptions::InvalidPointsException("Invalid points to create triangle");
+            throw exceptions::InvalidPointsException("Invalid points to create the triangle");
         }
+        points = new Point[TRIANGLEANGLES]{p1, p2, p3};
     }
 
     Triangle::Triangle(const Triangle& other) {
+        points = new Point[RECTANGLEANGLES];
         for (size_t i = 0; i < TRIANGLEANGLES; ++i) {
-            points[i] = new Point(other.points[i]->x, other.points[i]->y);
+            points[i] = Point(other.points[i].x, other.points[i].y);
         }
     }
 
     bool Triangle::Validate(Point p1, Point p2, Point p3) const {
-        Point points_arr[4] = {p1, p2, p3};
+        Point pointsArr[TRIANGLEANGLES] = {p1, p2, p3};
         for (int i = 0; i < TRIANGLEANGLES; ++i) {
             for (int j = i + 1; j < 3; ++j) {
-                if (points_arr[i] == points_arr[j]) {
+                if (pointsArr[i] == pointsArr[j]) {
                     return false;
                 }
             }
@@ -53,22 +49,18 @@ namespace figure {
             return *this;
         }
         for (size_t i = 0; i < TRIANGLEANGLES; ++i) {
-            if (points[i] == nullptr) {
-                points[i] = new Point(other.points[i]->x, other.points[i]->y);
-            } else {
-                *points[i] = *other.points[i];
-            }
+            points[i] = other.points[i];
         }
         return *this;
     }
 
     Point Triangle::Center() const {
-        Point center((points[0]->x + points[1]->x + points[2]->x) / 3.0, (points[0]->y + points[1]->y + points[2]->y) / 3.0);
+        Point center((points[0].x + points[1].x + points[2].x) / 3.0, (points[0].y + points[1].y + points[2].y) / 3.0);
         return center;
     }
 
     double Triangle::Area() const {
-        double area = 0.5 * ((points[1]->x - points[0]->x) * (points[2]->y - points[0]->y) - (points[2]->x - points[0]->x) * (points[1]->y - points[0]->y));
+        double area = 0.5 * ((points[1].x - points[0].x) * (points[2].y - points[0].y) - (points[2].x - points[0].x) * (points[1].y - points[0].y));
         return area;
     }
 
@@ -76,20 +68,13 @@ namespace figure {
         return Area();
     }
 
-    void Triangle::Clear() {
-        for (size_t i = 0; i < TRIANGLEANGLES; ++i) {
-            delete points[i];
-            points[i] = nullptr;
-        }
-    }
-
     Triangle::~Triangle() {
-        Clear();
+        delete[] points;
     }
 
     bool operator==(const Triangle& lf, const Triangle& rf) {
-        double s1 = DistanceBetweenPoints(*lf.points[0], *lf.points[1]);
-        double s2 = DistanceBetweenPoints(*rf.points[0], *rf.points[1]);
+        double s1 = DistanceBetweenPoints(lf.points[0], lf.points[1]);
+        double s2 = DistanceBetweenPoints(rf.points[0], rf.points[1]);
         return s1 == s2;
     }
 
@@ -99,18 +84,23 @@ namespace figure {
 
     std::ostream& operator<<(std::ostream& os, const Triangle& t) {
         for (size_t i = 0; i < TRIANGLEANGLES; ++i) {
-            os << *t.points[i];
+            os << t.points[i];
         }
         return os;
     }
 
     std::istream& operator>>(std::istream& is, Triangle& t) {
-        Point p1, p2, p3;
-        is >> p1;
-        is >> p2;
-        is >> p3;
-        Triangle temp(p1, p2, p3);
-        std::swap(t.points, temp.points);
+        Point ipoints[TRIANGLEANGLES];
+        for (size_t i = 0; i < TRIANGLEANGLES; ++i) {
+            is >> ipoints[i];
+        }
+        try {
+            Triangle temp(ipoints[0], ipoints[1], ipoints[2]);
+            std::swap(t.points, temp.points);
+        } catch (exceptions::InvalidPointsException& e) {
+            std::cerr << "Triangle: invalid points from input stream!" << std::endl;
+            return is;
+        }
         return is;
     }
 }

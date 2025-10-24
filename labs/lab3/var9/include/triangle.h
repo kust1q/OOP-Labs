@@ -9,10 +9,9 @@ namespace figure {
         friend std::ostream& operator<<(std::ostream& os, const Triangle& r);
         friend std::istream& operator>>(std::istream& is, Triangle& r);
       private:
-        Point* points[TRIANGLEANGLES];
+        Point* points;
 
         bool Validate(Point p1, Point p2, Point p3) const;
-        void Clear();
       public:
         Triangle();
         Triangle(Point p1, Point p2, Point p3);

@@ -1,13 +1,10 @@
 #include "exceptions.h"
 #include "rectangle.h"
+#include "square.h"
 
 int main() {
-    figure::Rectangle r;
-    try {
-        std::cin >> r;
-        std::cout << r << std::endl;
-    } catch (exceptions::InvalidPointsException) {
-        std::cout << "Wrong points!" << std::endl;
-    }
+    figure::Square s;
+    std::cin >> s;
+    std::cout << s << std::endl;
     return 0;
 }

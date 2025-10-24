@@ -8,6 +8,7 @@
 
 namespace vector {
     class Vector {
+      friend void swap(Vector& v1, Vector& g2) noexcept;
       public:
         Vector();
 
@@ -49,11 +50,10 @@ namespace vector {
 
         ~Vector();
 
-        void swap(Vector& other) noexcept;
-
     private:
         size_t sz_;
         size_t cap_;
         figure::Figure** arr_;
     };
+    void swap(Vector& v1, Vector& v2) noexcept;
 }

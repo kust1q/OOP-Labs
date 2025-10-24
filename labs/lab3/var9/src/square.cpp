@@ -3,40 +3,27 @@
 #include "figure.h"
 
 namespace figure {
-    Square::Square() {
-        points[0] = new Point(0, 0);
-        points[1] = new Point(0, 1);
-        points[2] = new Point(1, 1);
-        points[3] = new Point(1, 0);
-    }
+    Square::Square(): Square(Point(0, 0), Point(0, 1), Point(1, 1), Point(1, 0)) {}
 
-
-    Square::Square(Point p1, Point p2, Point p3, Point p4){
-        points[0] = new Point(p1.x, p1.y);
-        points[1] = new Point(p2.x, p2.y);
-        points[2] = new Point(p3.x, p3.y);
-        points[3] = new Point(p4.x, p4.y);
+    Square::Square(Point p1, Point p2, Point p3, Point p4) {
         if (!Validate(p1, p2, p3, p4)) {
-            Clear();
-            throw exceptions::InvalidPointsException("Invalid point to create a square");
+            throw exceptions::InvalidPointsException("Square: invalid points!");
         }
+        points = new Point[SQUAREANGLES]{p1, p2, p3, p4};
     }
 
-    Square::Square(const Square& other) {
+    Square::Square(const Square &other) {
+        points = new Point[RECTANGLEANGLES];
         for (size_t i = 0; i < SQUAREANGLES; ++i) {
-            if (points[i] == nullptr) {
-                points[i] = new Point(other.points[i]->x, other.points[i]->y);
-            } else {
-                *points[i] = *other.points[i];
-            }
+            points[i] = Point(other.points[i].x, other.points[i].y);
         }
     }
 
     bool Square::Validate(Point p1, Point p2, Point p3, Point p4) const {
-        Point points_arr[4] = {p1, p2, p3, p4};
+        Point pointsArr[SQUAREANGLES] = {p1, p2, p3, p4};
         for (int i = 0; i < SQUAREANGLES; ++i) {
             for (int j = i + 1; j < 4; ++j) {
-                if (points_arr[i] == points_arr[j]) {
+                if (pointsArr[i] == pointsArr[j]) {
                     return false;
                 }
             }
@@ -63,23 +50,23 @@ namespace figure {
         return a == b && a == c && a == d;
     }
 
-    Square& Square::operator=(const Square& other) {
+    Square &Square::operator=(const Square &other) {
         if (&other == this) {
             return *this;
         }
-        for (size_t i = 0; i < 4; ++i) {
-            points[i] = new Point(other.points[i]->x, other.points[i]->y);
+        for (size_t i = 0; i < SQUAREANGLES; ++i) {
+            points[i] = other.points[i];
         }
         return *this;
     }
 
     Point Square::Center() const {
-        Point p1((points[0]->x + points[2]->x) / 2.0, (points[0]->y + points[2]->y) / 2.0);
+        Point p1((points[0].x + points[2].x) / 2.0, (points[0].y + points[2].y) / 2.0);
         return p1;
     }
 
     double Square::Area() const {
-        double area(std::fabs(points[0]->x - points[2]->x) * std::fabs(points[0]->y - points[2]->y));
+        double area(std::fabs(points[0].x - points[2].x) * std::fabs(points[0].y - points[2].y));
         return area;
     }
 
@@ -87,43 +74,40 @@ namespace figure {
         return Area();
     }
 
-    void Square::Clear() {
-        for (size_t i = 0; i < SQUAREANGLES; ++i) {
-            delete points[i];
-            points[i] = nullptr;
-        }
-    }
-
     Square::~Square() {
-        Clear();
+        delete[] points;
     }
 
-    bool operator==(const Square& lf, const Square& rf) {
-        bool l = std::fabs(lf.points[0]->x - lf.points[3]->x) == std::fabs(rf.points[0]->x - rf.points[3]->x);
-        bool w = std::fabs(std::fabs(lf.points[0]->y - lf.points[3]->y)) == std::fabs(std::fabs(rf.points[0]->y - rf.points[3]->y));
-        bool res = w & l; 
+    bool operator==(const Square &lf, const Square &rf) {
+        bool l = std::fabs(lf.points[0].x - lf.points[3].x) == std::fabs(rf.points[0].x - rf.points[3].x);
+        bool w = std::fabs(std::fabs(lf.points[0].y - lf.points[3].y)) == std::fabs(std::fabs(rf.points[0].y - rf.points[3].y));
+        bool res = w & l;
         return res;
     }
 
-    bool operator!=(const Square& lf, const Square& rf) {
+    bool operator!=(const Square &lf, const Square &rf) {
         return !(lf == rf);
     }
 
-    std::ostream& operator<<(std::ostream& os, const Square& s) {
+    std::ostream &operator<<(std::ostream &os, const Square &s) {
         for (size_t i = 0; i < SQUAREANGLES; ++i) {
             os << s.points[i];
         }
         return os;
     }
 
-    std::istream& operator>>(std::istream& is, Square& s) {
-        Point p1, p2, p3, p4;
-        is >> p1;
-        is >> p2;
-        is >> p3;
-        is >> p4;
-        Square temp(p1, p2, p3, p4);
-        std::swap(s.points, temp.points);
+    std::istream &operator>>(std::istream &is, Square &s) {
+        Point ipoints[SQUAREANGLES];
+        for (size_t i = 0; i < SQUAREANGLES; ++i) {
+            is >> ipoints[i];
+        }
+        try {
+            Square temp(ipoints[0], ipoints[1], ipoints[2], ipoints[3]);
+            std::swap(s.points, temp.points);
+        } catch (exceptions::InvalidPointsException& e) {
+            std::cerr << "Square: invalid points from input stream!" << std::endl;
+            return is;
+        }
         return is;
     }
 }
