@@ -81,7 +81,6 @@ namespace figure {
     }
 
     std::ostream& operator<<(std::ostream& os, const Rectangle& r) {
-        Point p;
         for (size_t i = 0; i < RECTANGLEANGLES; ++i) {
            os << r.points[i];
         }
