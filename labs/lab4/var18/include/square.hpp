@@ -140,7 +140,6 @@ namespace figure {
             std::swap(r.points, temp.points);
         } catch (exceptions::InvalidPointsException&) {
             std::cerr << "Square: invalid points from input stream!" << std::endl;
-            return is;
         }
         return is;
     }
