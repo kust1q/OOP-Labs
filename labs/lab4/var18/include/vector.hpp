@@ -46,6 +46,7 @@ namespace figure {
         Vector(Vector&& other) noexcept : sz_(other.sz_), cap_(other.cap_), arr_(std::move(other.arr_)) {
             other.sz_ = 0;
             other.cap_ = 0;
+            other.arr_.reset();
         }
 
         Vector(const std::initializer_list<T>& init) : sz_(init.size()), cap_(init.size()) {
