@@ -82,7 +82,7 @@ TEST(RectangleTest, MoveConstructor) {
     EXPECT_DOUBLE_EQ(r2.Center().x, 2.0);
     EXPECT_DOUBLE_EQ(r2.Center().y, 1.0);
 
-    EXPECT_DOUBLE_EQ(r1.Area(), 1.0);
+    EXPECT_DOUBLE_EQ(r1.Area(), 0.0);
 }
 
 TEST(RectangleTest, MoveAssignment) {
@@ -94,7 +94,7 @@ TEST(RectangleTest, MoveAssignment) {
     r2 = std::move(r1);
 
     EXPECT_DOUBLE_EQ(r2.Area(), area);
-    EXPECT_DOUBLE_EQ(r1.Area(), 1.0);
+    EXPECT_DOUBLE_EQ(r1.Area(), 0.0);
 }
 
 // --- Тесты для Square<double> ---
@@ -133,7 +133,7 @@ TEST(SquareTest, MoveConstructor) {
     EXPECT_DOUBLE_EQ(s2.Area(), area);
     EXPECT_DOUBLE_EQ(s2.Center().x, center.x);
     EXPECT_DOUBLE_EQ(s2.Center().y, center.y);
-    EXPECT_DOUBLE_EQ(s1.Area(), 1.0);
+    EXPECT_DOUBLE_EQ(s1.Area(), 0.0);
 }
 
 TEST(SquareTest, MoveAssignment) {
@@ -146,7 +146,7 @@ TEST(SquareTest, MoveAssignment) {
     s2 = std::move(s1);
 
     EXPECT_DOUBLE_EQ(s2.Area(), area);
-    EXPECT_DOUBLE_EQ(s1.Area(), 1.0);
+    EXPECT_DOUBLE_EQ(s1.Area(), 0.0);
 }
 
 // --- Тесты для Trapezoid<double> ---
@@ -191,7 +191,7 @@ TEST(TrapezoidTest, MoveConstructor) {
     EXPECT_DOUBLE_EQ(t2.Center().x, center.x);
     EXPECT_DOUBLE_EQ(t2.Center().y, center.y);
 
-    EXPECT_DOUBLE_EQ(t1.Area(), 1.0);
+    EXPECT_DOUBLE_EQ(t1.Area(), 0.0);
 }
 
 TEST(TrapezoidTest, MoveAssignment) {
@@ -204,7 +204,7 @@ TEST(TrapezoidTest, MoveAssignment) {
     t2 = std::move(t1);
 
     EXPECT_DOUBLE_EQ(t2.Area(), area);
-    EXPECT_DOUBLE_EQ(t1.Area(), 1.0);
+    EXPECT_DOUBLE_EQ(t1.Area(), 0.0);
 }
 
 TEST(TrapezoidTest, Equality) {
@@ -217,6 +217,14 @@ TEST(TrapezoidTest, Equality) {
     Point<double> p5(1.0, 1.0), p6(3.0, 4.0), p7(4.0, 4.0), p8(6.0, 1.0);
     Trapezoid<double> t3(p5, p6, p7, p8);
     EXPECT_FALSE(t1 == t3);
+
+    Point<double> p9(1.0, 0.0), p10(0.0, 2.0), p11(4.0, 2.0), p12(3.0, 0.0);
+    Trapezoid<double> t4(p9, p10, p11, p12);
+    EXPECT_TRUE(t1 == t4);
+
+    Point<double> p13(0.0, 0.0), p14(0.0, 4.0), p15(2.0, 3.0), p16(2.0, 1.0);
+    Trapezoid<double> t5(p13, p14, p15, p16);
+    EXPECT_TRUE(t1 == t5);
 }
 
 // --- Тесты для Vector<Figure<T>*> с разными типами фигур ---
@@ -247,8 +255,46 @@ TEST(VectorTest, FigureDoubleVector) {
         EXPECT_DOUBLE_EQ(fig->Area(), static_cast<double>(*fig));
     }
 
-    v.Erase(0, 1); // удаляем квадрат
+    v.Erase(0, 1);
     EXPECT_EQ(v.Size(), 2);
+}
+
+TEST(VectorTest, SeparateCenter) {
+    using FigPtr = std::shared_ptr<Figure<double>>;
+    Vector<FigPtr> v;
+
+    Point<double> p1(0.0, 0.0), p2(0.0, 2.0), p3(4.0, 2.0), p4(4.0, 0.0);
+    auto rect = std::make_shared<Rectangle<double>>(p1, p2, p3, p4);
+    v.PushBack(rect);
+
+    Point<double> p5(0.0, 0.0), p6(2.0, 0.0), p7(2.0, 2.0), p8(0.0, 2.0);
+    auto sq = std::make_shared<Square<double>>(p5, p6, p7, p8);
+    v.PushBack(sq);
+
+    Point<double> p9(0.0, 0.0), p10(1.0, 2.0), p11(3.0, 2.0), p12(4.0, 0.0);
+    auto trap = std::make_shared<Trapezoid<double>>(p9, p10, p11, p12);
+    v.PushBack(trap);
+
+    v.SeparateCenter();
+}
+
+TEST(VectorTest, SeparateArea) {
+    using FigPtr = std::shared_ptr<Figure<double>>;
+    Vector<FigPtr> v;
+
+    Point<double> p1(0.0, 0.0), p2(0.0, 2.0), p3(4.0, 2.0), p4(4.0, 0.0);
+    auto rect = std::make_shared<Rectangle<double>>(p1, p2, p3, p4);
+    v.PushBack(rect);
+
+    Point<double> p5(0.0, 0.0), p6(2.0, 0.0), p7(2.0, 2.0), p8(0.0, 2.0);
+    auto sq = std::make_shared<Square<double>>(p5, p6, p7, p8);
+    v.PushBack(sq);
+
+    Point<double> p9(0.0, 0.0), p10(1.0, 2.0), p11(3.0, 2.0), p12(4.0, 0.0);
+    auto trap = std::make_shared<Trapezoid<double>>(p9, p10, p11, p12);
+    v.PushBack(trap);
+
+    v.SeparateArea();
 }
 
 // Тест для Vector<Rectangle<double>*>

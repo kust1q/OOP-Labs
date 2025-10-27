@@ -2,11 +2,7 @@
 
 #include <algorithm>
 #include <cmath>
-#include <initializer_list>
 #include <iostream>
-#include <vector>
-#include <type_traits>
-#include <concepts>
 #include <memory>
 
 #include "concepts.hpp"
@@ -45,8 +41,9 @@ namespace figure {
     }
 
     template<Scalar T>
-    T DistanceBetweenPoints(const Point<T>& p1, const Point<T>& p2) {
-        return std::sqrt((p1.x - p2.x) * (p1.x - p2.x) + (p1.y - p2.y) * (p1.y - p2.y));
+    double DistanceBetweenPoints(const Point<T>& p1, const Point<T>& p2) {
+        double distance = std::sqrt((p1.x - p2.x) * (p1.x - p2.x) + (p1.y - p2.y) * (p1.y - p2.y));
+        return distance;
     }
 
 

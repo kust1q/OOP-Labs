@@ -17,7 +17,7 @@ namespace figure {
       private:
         std::unique_ptr<Point<T>[]> points;
 
-        bool Validate(Point<T> p1, Point<T> p2, Point<T> p3, Point<T> p4) const {
+        bool Validate(const Point<T>& p1, const Point<T>& p2, const Point<T>& p3, const Point<T>& p4) const {
             Point<T> pointsArr[TRAPEZOIDANGLES] = {p1, p2, p3, p4};
             for (int i = 0; i < TRAPEZOIDANGLES; ++i) {
                 for (int j = i + 1; j < TRAPEZOIDANGLES; ++j) {
@@ -44,21 +44,13 @@ namespace figure {
             lengths[1] = DistanceBetweenPoints(points[3], points[2]);
             lengths[2] = DistanceBetweenPoints(points[0], points[3]);
             lengths[3] = DistanceBetweenPoints(points[1], points[2]);
-
-            for (size_t i = 0; i < TRAPEZOIDANGLES - 1; ++i) {
-                for (size_t j = i + 1; j < TRAPEZOIDANGLES; ++j) {
-                    if (lengths[j] < lengths[i]) {
-                        std::swap(lengths[i], lengths[j]);
-                    }
-                }
-            }
             return lengths;
         }
 
       public:
         Trapezoid(): Trapezoid(Point<T>(0.0, 0.0), Point<T>(0.0, 1.0), Point<T>(1.0, 1.0), Point<T>(1.0, 0.0)) {}
 
-        Trapezoid(Point<T> p1, Point<T> p2, Point<T> p3, Point<T> p4){
+        Trapezoid(const Point<T>& p1, const Point<T>& p2, const Point<T>& p3, const Point<T>& p4) {
             if (!Validate(p1, p2, p3, p4)) {
                 throw exceptions::InvalidPointsException("Trapezoid: invalid points!");
             }
@@ -70,34 +62,32 @@ namespace figure {
         }
 
         Trapezoid(const Trapezoid& other) {
+            if (other.points.get() == nullptr) {
+                points = std::unique_ptr<Point<T>[]>(nullptr);
+                return;
+            }
             points = std::make_unique<Point<T>[]>(TRAPEZOIDANGLES);
             for (size_t i = 0; i < TRAPEZOIDANGLES; ++i) {
-                points[i] = Point(other.points[i].x, other.points[i].y);
+                points[i] = other.points[i];
             }
         }
 
-        Trapezoid(Trapezoid&& other): Trapezoid() {
-            std::swap(points, other.points);
-        }
+        Trapezoid(Trapezoid&& other) = default;
         
         Trapezoid<T>& operator=(const Trapezoid& other) {
             if (&other != this) {
-                for (size_t i = 0; i < TRAPEZOIDANGLES; ++i) {
-                    points[i] = other.points[i];
-                }
+                Trapezoid<T> temp = other;
+                std::swap(temp.points, points);
             }
             return *this;
         }
 
-        Trapezoid<T>& operator=(Trapezoid&& other) {
-            if (&other != this) {
-                Trapezoid<T> temp = std::move(other);
-                std::swap(points, temp.points);
-            }
-            return *this;
-        }
+        Trapezoid<T>& operator=(Trapezoid&& other) = default;
 
         Point<T> Center() const override {
+            if (points.get() == nullptr) {
+                return Point<T>(0, 0);
+            }
             T sumX = 0.0;
             T sumY = 0.0;
             for (size_t i = 0; i < TRAPEZOIDANGLES; ++i) {
@@ -108,8 +98,11 @@ namespace figure {
             return p;
         }
 
-        T Area() const override {
-            T area = 0;
+        double Area() const override {
+            if (points.get() == nullptr) {
+                return 0;
+            }
+            double area = 0;
             for (size_t i = 0; i < TRAPEZOIDANGLES; ++i) {
                 size_t j = (i + 1) % TRAPEZOIDANGLES;
                 area += points[i].x * points[j].y - points[j].x * points[i].y;
@@ -130,9 +123,16 @@ namespace figure {
             return false;
         }
         std::unique_ptr<T[]> lengths1 = lf.GetLengths();
-        std::unique_ptr<T[]> lengths2 = lf.GetLengths();
-        for (size_t i = 0; i < TRAPEZOIDANGLES; i++) {
-            if (lengths1[i] != lengths2[i]) {
+        std::unique_ptr<T[]> lengths2 = rf.GetLengths();
+        for (size_t i = 0; i < TRAPEZOIDANGLES; ++i) {
+            for (size_t j = 0; j < TRAPEZOIDANGLES; ++j) {
+                if (lengths1[i] == lengths2[j]) {
+                    lengths1[i] = -1;
+                    lengths2[j] = -1;
+                    break;
+                }
+            }
+            if (lengths1[i] != -1) {
                 return false;
             }
         }
