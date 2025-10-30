@@ -1,7 +1,6 @@
 #include "rectangle.h"
 #include "exceptions.h"
 #include "figure.h"
-#include <stdexcept>
 
 namespace figure {
     Rectangle::Rectangle(): Rectangle(Point(0, 0), Point(0, 1), Point(1, 1), Point(1, 0)) {}
