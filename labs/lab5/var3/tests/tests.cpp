@@ -72,7 +72,7 @@ TEST(MemoryResourceTest, ConstructorSizeDefaultValues) {
 
 TEST(MemoryResourceTest, ConstructorWithInitList) {
     MemoryResource resource(4096, ForwardList<int>::node_size());
-    ForwardList<int> list{1, 2, 3, 4, 5, 6, 7, 8};
+    ForwardList<int> list({1, 2, 3, 4, 5, 6, 7, 8}, &resource);
     ASSERT_EQ(list.Size(), 8);
     int iter = 1;
     while (!list.IsEmpty()) {
