@@ -1,18 +1,7 @@
 #include "memory_resource.hpp"
 
-MemoryResource::MemoryResource(size_t pool_size, size_t block_size): pool_size_(pool_size), block_size_(block_size) {
-    if (block_size == 0) {
-        throw InvalidBlockSizeException("Block size must be > 0");
-    }
-    if (pool_size < block_size) {
-        throw InvalidPoolSizeException("Pool size must be >= block size");
-    }
-
-    pool_ = new int8_t[pool_size];
-    for (size_t i = 0; i < pool_size; i += block_size) {
-        void* ptr = reinterpret_cast<void*>(pool_ + i);
-        blocks_[ptr] = false;
-    }
+MemoryResource::MemoryResource() {
+    pool_ = new int8_t[pool_size_];
 }
 
 MemoryResource::~MemoryResource() {
@@ -20,26 +9,45 @@ MemoryResource::~MemoryResource() {
 }
 
 void* MemoryResource::do_allocate(std::size_t bytes, std::size_t alignment) {
-    if (bytes > block_size_) {
-        throw std::bad_alloc();
+    if (bytes == 0) {
+        return nullptr;
     }
 
-    for (auto& [ptr, is_used] : blocks_) {
-        if (!is_used) {
-            is_used = true;
-            return ptr;
+    size_t current_offset = 0;
+
+    for (const auto& [ptr, size] : blocks_) {
+        int8_t* block_ptr = reinterpret_cast<int8_t*>(ptr);
+        size_t block_offset = block_ptr - pool_;
+        
+        if (current_offset + bytes <= block_offset) {
+            void* result = pool_ + current_offset;
+            blocks_[result] = bytes;
+            return result;
         }
+        
+        current_offset = block_offset + size;
     }
-
+    
+    if (current_offset + bytes <= pool_size_) {
+        void* result = pool_ + current_offset;
+        blocks_[result] = bytes;
+        return result;
+    }
+    
     throw std::bad_alloc();
 }
 
 void MemoryResource::do_deallocate(void* ptr, std::size_t bytes, std::size_t alignment) {
     auto it = blocks_.find(ptr);
-    if (it != blocks_.end()) {
-        it->second = false;
+    if (it == blocks_.end()) {
+        throw InvalidDeallocatedBlockException("Unable to free unallocated memory");
     }
-}
+    if (it->second != bytes) {
+        throw InvalidDeallocatedBitesSisezSizeException("Wrong block size to deallocate");
+    }
+
+    blocks_.erase(it);
+}   
 
 bool MemoryResource::do_is_equal(const std::pmr::memory_resource& other) const noexcept {
     return this == &other;

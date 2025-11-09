@@ -41,37 +41,35 @@ typename ForwardList<T>::ForwardListIterator ForwardList<T>::ForwardListIterator
 
 template <typename T>
 typename ForwardList<T>::ForwardListIterator::pointer_type ForwardList<T>::ForwardListIterator::operator->() const {
-    return &current_->val_;
+    return std::addressof(current_->val_);
 }
 
 template <typename T>
-ForwardList<T>::ForwardList(std::pmr::memory_resource* res): head_(nullptr), sz_(0), alloc(res) {
-    head_ = alloc.allocate(1);
+ForwardList<T>::ForwardList(std::pmr::memory_resource* res): alloc_(res), head_(alloc_.allocate(1)), sz_(0) {
     try {
-        alloc.construct(head_);
+        alloc_.construct(head_);
     } catch (...) {
-        alloc.deallocate(head_, 1);
+        alloc_.deallocate(head_, 1);
         throw;
     }
 }
 
 template <typename T>
-ForwardList<T>::ForwardList(size_t sz, std::pmr::memory_resource* res): head_(nullptr), sz_(sz), alloc(res) {
-    head_ = alloc.allocate(1);
+ForwardList<T>::ForwardList(size_t sz, std::pmr::memory_resource* res): alloc_(res), head_(alloc_.allocate(1)), sz_(sz) {
     try {
-        alloc.construct(head_);
+        alloc_.construct(head_);
     } catch (...) {
-        alloc.deallocate(head_, 1);
+        alloc_.deallocate(head_, 1);
         throw;
     }
 
     Node* cur = head_;
     for (size_t i = 0; i < sz; ++i) {
-        Node* new_node = alloc.allocate(1);
+        Node* new_node = alloc_.allocate(1);
         try {
-            alloc.construct(new_node);
+            alloc_.construct(new_node);
         } catch (...) {
-            alloc.deallocate(new_node, 1);
+            alloc_.deallocate(new_node, 1);
             throw;
         }
         cur->next_ = new_node;
@@ -80,22 +78,21 @@ ForwardList<T>::ForwardList(size_t sz, std::pmr::memory_resource* res): head_(nu
 }
 
 template <typename T>
-ForwardList<T>::ForwardList(const std::initializer_list<T>& values, std::pmr::memory_resource* res): head_(nullptr), sz_(values.size()), alloc(res) {
-    head_ = alloc.allocate(1);
+ForwardList<T>::ForwardList(const std::initializer_list<T>& values, std::pmr::memory_resource* res): alloc_(res), head_(alloc_.allocate(1)), sz_(values.size()) {
     try {
-        alloc.construct(head_);
+        alloc_.construct(head_);
     } catch (...) {
-        alloc.deallocate(head_, 1);
+        alloc_.deallocate(head_, 1);
         throw;
     }
 
     Node* cur = head_;
     for (auto& val : values) {
-        Node* new_node = alloc.allocate(1);
+        Node* new_node = alloc_.allocate(1);
         try {
-            alloc.construct(new_node, val);
+            alloc_.construct(new_node, val);
         } catch (...) {
-            alloc.deallocate(new_node, 1);
+            alloc_.deallocate(new_node, 1);
             throw;
         }
         cur->next_ = new_node;
@@ -104,22 +101,21 @@ ForwardList<T>::ForwardList(const std::initializer_list<T>& values, std::pmr::me
 }
 
 template <typename T>
-ForwardList<T>::ForwardList(const ForwardList& other): head_(nullptr), sz_(other.Size()), alloc(other.alloc) {
-    head_ = alloc.allocate(1);
+ForwardList<T>::ForwardList(const ForwardList& other): alloc_(other.alloc_), head_(alloc_.allocate(1)), sz_(other.Size()) {
     try {
-        alloc.construct(head_);
+        alloc_.construct(head_);
     } catch (...) {
-        alloc.deallocate(head_, 1);
+        alloc_.deallocate(head_, 1);
         throw;
     }
 
     Node* cur = head_;
     for (auto it = other.Begin(); it != other.End(); ++it) {
-        Node* new_node = alloc.allocate(1);
+        Node* new_node = alloc_.allocate(1);
         try {
-            alloc.construct(new_node, *it);
+            alloc_.construct(new_node, *it);
         } catch (...) {
-            alloc.deallocate(new_node, 1);
+            alloc_.deallocate(new_node, 1);
             throw;
         }
         cur->next_ = new_node;
@@ -132,8 +128,22 @@ ForwardList<T>& ForwardList<T>::operator=(const ForwardList& other) {
     if (this == &other) {
         return *this;
     }
-    ForwardList temp(other);
-    Swap(temp);
+    
+    Clear();
+    Node* cur = head_;
+    for (auto it = other.Begin(); it != other.End(); ++it) {
+        Node* new_node = alloc_.allocate(1);
+        try {
+            alloc_.construct(new_node, *it);
+        } catch (...) {
+            alloc_.deallocate(new_node, 1);
+            throw;
+        }
+        cur->next_ = new_node;
+        cur = cur->next_;
+        ++sz_;
+    }
+    
     return *this;
 }
 
@@ -166,12 +176,6 @@ size_t ForwardList<T>::Size() const noexcept {
 }
 
 template <typename T>
-void ForwardList<T>::Swap(ForwardList& a) {
-    std::swap(head_->next_, a.head_->next_);
-    std::swap(sz_, a.sz_);
-}
-
-template <typename T>
 void ForwardList<T>::EraseAfter(ForwardListIterator pos) {
     if (IsEmpty()) {
         throw ListIsEmptyException("List is empty!");
@@ -183,7 +187,7 @@ void ForwardList<T>::EraseAfter(ForwardListIterator pos) {
     pos.current_->next_ = del->next_;
 
     std::destroy_at(del);
-    alloc.deallocate(del, 1);
+    alloc_.deallocate(del, 1);
     --sz_;
 }
 
@@ -192,11 +196,11 @@ void ForwardList<T>::InsertAfter(ForwardListIterator pos, const T& value) {
     if (pos.current_ == nullptr) {
         return;
     }
-    Node* new_node = alloc.allocate(1);
+    Node* new_node = alloc_.allocate(1);
     try {
-        alloc.construct(new_node, value);
+        alloc_.construct(new_node, value);
     } catch (...) {
-        alloc.deallocate(new_node, 1);
+        alloc_.deallocate(new_node, 1);
         throw;
     }
     Node* temp = pos.current_->next_;
@@ -221,7 +225,7 @@ void ForwardList<T>::Clear() noexcept {
     while (cur != nullptr) {
         Node* next = cur->next_;
         std::destroy_at(cur);
-        alloc.deallocate(cur, 1);
+        alloc_.deallocate(cur, 1);
         cur = next;
     }
     head_->next_ = nullptr;
@@ -230,11 +234,11 @@ void ForwardList<T>::Clear() noexcept {
 
 template <typename T>
 void ForwardList<T>::PushFront(const T& value) {
-    Node* new_node = alloc.allocate(1);
+    Node* new_node = alloc_.allocate(1);
     try {
-        alloc.construct(new_node, value);
+        alloc_.construct(new_node, value);
     } catch (...) {
-        alloc.deallocate(new_node, 1);
+        alloc_.deallocate(new_node, 1);
         throw;
     }
 
@@ -253,7 +257,7 @@ void ForwardList<T>::PopFront() {
     head_->next_ = del->next_;
 
     std::destroy_at(del);
-    alloc.deallocate(del, 1);
+    alloc_.deallocate(del, 1);
     --sz_;
 }
 
@@ -261,12 +265,5 @@ template <typename T>
 ForwardList<T>::~ForwardList() {
     Clear();
     std::destroy_at(head_);
-    alloc.deallocate(head_, 1);
+    alloc_.deallocate(head_, 1);
 }
-
-namespace std {
-template <typename T>
-void swap(ForwardList<T>& a, ForwardList<T>& b) {
-    a.Swap(b);
-}
-}  // namespace std

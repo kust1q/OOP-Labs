@@ -37,7 +37,7 @@ protected:
         ASSERT_EQ(list.Size(), sz);
     }
 
-    MemoryResource resource{4096, ForwardList<int>::node_size()};
+    MemoryResource resource;
     ForwardList<int> list{&resource};
     const size_t sz = 7;
 };
@@ -45,13 +45,13 @@ protected:
 // === Тесты с MemoryResource ===
 
 TEST(MemoryResourceTest, DefaultConstructor) {
-    MemoryResource resource(4096, ForwardList<int>::node_size());
+    MemoryResource resource;
     ForwardList<int> list(&resource);
     ASSERT_TRUE(list.IsEmpty()) << "Default list isn't empty!";
 }
 
 TEST(MemoryResourceTest, PushFrontSimple) {
-    MemoryResource resource(4096, ForwardList<int>::node_size());
+    MemoryResource resource;
     ForwardList<int> list(&resource);
     list.PushFront(2);
     ASSERT_EQ(list.Size(), 1);
@@ -59,7 +59,7 @@ TEST(MemoryResourceTest, PushFrontSimple) {
 }
 
 TEST(MemoryResourceTest, PopFrontSimple) {
-    MemoryResource resource(4096, ForwardList<int>::node_size());
+    MemoryResource resource;
     ForwardList<int> list(&resource);
     list.PushFront(1);
     list.PushFront(2);
@@ -70,7 +70,7 @@ TEST(MemoryResourceTest, PopFrontSimple) {
 }
 
 TEST(MemoryResourceTest, PopFrontEmptyList) {
-    MemoryResource resource(4096, ForwardList<int>::node_size());
+    MemoryResource resource;
     ForwardList<int> list(&resource);
     EXPECT_THROW({
         list.PopFront();
@@ -78,7 +78,7 @@ TEST(MemoryResourceTest, PopFrontEmptyList) {
 }
 
 TEST(MemoryResourceTest, ConstructorSizeDefaultValues) {
-    MemoryResource resource(4096, ForwardList<std::string>::node_size());
+    MemoryResource resource;
     ForwardList<std::string> list(5, &resource);
     ASSERT_EQ(list.Size(), 5);
     while (list.Size()) {
@@ -88,7 +88,7 @@ TEST(MemoryResourceTest, ConstructorSizeDefaultValues) {
 }
 
 TEST(MemoryResourceTest, ConstructorWithInitList) {
-    MemoryResource resource(4096, ForwardList<int>::node_size());
+    MemoryResource resource;
     ForwardList<int> list({1, 2, 3, 4, 5, 6, 7, 8}, &resource);
     ASSERT_EQ(list.Size(), 8);
     int iter = 1;
@@ -96,31 +96,6 @@ TEST(MemoryResourceTest, ConstructorWithInitList) {
         ASSERT_EQ(list.Front(), iter++);
         list.PopFront();
     }
-}
-
-TEST(MemoryResourceTest, Swap) {
-    MemoryResource resource1(4096, ForwardList<int>::node_size());
-    MemoryResource resource2(4096, ForwardList<int>::node_size());
-
-    ForwardList<int> list(&resource1);
-    list.PushFront(5);
-
-    ForwardList<int> lst(&resource2);
-    lst.PushFront(15);
-    lst.PushFront(14);
-
-    size_t old_list_size = list.Size();
-    size_t old_lst_size = lst.Size();
-
-    std::swap(list, lst);
-
-    ASSERT_EQ(lst.Size(), old_list_size);
-    ASSERT_EQ(list.Size(), old_lst_size);
-
-    ASSERT_EQ(lst.Front(), 5);
-    ASSERT_EQ(list.Front(), 14);
-    list.PopFront();
-    ASSERT_EQ(list.Front(), 15);
 }
 
 TEST_F(ListTest, CopyConstructor) {
@@ -137,7 +112,7 @@ TEST_F(ListTest, CopyConstructor) {
 }
 
 TEST_F(ListTest, CopyAssigment) {
-    MemoryResource resource(4096, ForwardList<int>::node_size());
+    MemoryResource resource;
     ForwardList<int> lst(&resource);
     lst.PushFront(4);
     list = lst;
@@ -239,7 +214,7 @@ TEST_F(ListTest, Clear) {
 }
 
 TEST(MemoryResourceTest, WithComplexType) {
-    MemoryResource resource(4096, ForwardList<Person>::node_size());
+    MemoryResource resource;
     ForwardList<Person> list(&resource);
 
     list.PushFront(Person("Alice", 30));
@@ -258,7 +233,7 @@ TEST(MemoryResourceTest, WithComplexType) {
 }
 
 TEST(MemoryResourceTest, CopyWithComplexType) {
-    MemoryResource resource(4096, ForwardList<Person>::node_size());
+    MemoryResource resource;
     ForwardList<Person> original(&resource);
     original.PushFront(Person("item1", 10));
     original.PushFront(Person("item2", 20));
@@ -278,7 +253,7 @@ TEST(MemoryResourceTest, CopyWithComplexType) {
 }
 
 TEST(MemoryResourceTest, FindWithPerson) {
-    MemoryResource resource(4096, ForwardList<Person>::node_size());
+    MemoryResource resource;
     ForwardList<Person> list(&resource);
     list.PushFront(Person("Alice", 30));
     list.PushFront(Person("Bob", 25));
@@ -290,31 +265,6 @@ TEST(MemoryResourceTest, FindWithPerson) {
 
     auto not_found = list.Find(Person("Charlie", 40));
     EXPECT_EQ(not_found, list.End());
-}
-
-TEST(MemoryResourceTest, SwapWithPerson) {
-    MemoryResource resource1(4096, ForwardList<Person>::node_size());
-    MemoryResource resource2(4096, ForwardList<Person>::node_size());
-
-    ForwardList<Person> list1(&resource1);
-    list1.PushFront(Person("Alice", 30));
-
-    ForwardList<Person> list2(&resource2);
-    list2.PushFront(Person("Bob", 25));
-    list2.PushFront(Person("Charlie", 35));
-
-    size_t old_list_size = list1.Size();
-    size_t old_lst_size = list2.Size();
-
-    std::swap(list1, list2);
-
-    ASSERT_EQ(list2.Size(), old_list_size);
-    ASSERT_EQ(list1.Size(), old_lst_size);
-
-    ASSERT_EQ(list2.Front().name, "Alice");
-    ASSERT_EQ(list1.Front().name, "Charlie");
-    list1.PopFront();
-    ASSERT_EQ(list1.Front().name, "Bob");
 }
 
 int main(int argc, char **argv) {

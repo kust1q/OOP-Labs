@@ -16,9 +16,9 @@ private:
     std::string error_message_;
 };
 
-class InvalidBlockSizeException: public std::exception {
+class InvalidDeallocatedBitesSisezSizeException: public std::exception {
 public:
-    explicit InvalidBlockSizeException(const std::string& text) : error_message_(text) {
+    explicit InvalidDeallocatedBitesSisezSizeException(const std::string& text) : error_message_(text) {
     }
 
     const char* what() const noexcept override {
@@ -29,9 +29,9 @@ private:
     std::string error_message_;
 };
 
-class InvalidPoolSizeException: public std::exception {
+class InvalidDeallocatedBlockException: public std::exception {
 public:
-    explicit InvalidPoolSizeException(const std::string& text) : error_message_(text) {
+    explicit InvalidDeallocatedBlockException(const std::string& text) : error_message_(text) {
     }
 
     const char* what() const noexcept override {

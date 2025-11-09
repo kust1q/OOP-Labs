@@ -9,7 +9,7 @@
 #include "exceptions.hpp"
 
 template <typename T>
-class ForwardList {
+class ForwardList { 
   private:
     class Node {
         friend class ForwardListIterator;
@@ -45,9 +45,9 @@ class ForwardList {
     };
 
   private:
+    std::pmr::polymorphic_allocator<Node> alloc_;
     Node* head_;
     size_t sz_;
-    std::pmr::polymorphic_allocator<Node> alloc;
 
   public:
     ForwardList(std::pmr::memory_resource* res = std::pmr::get_default_resource());
@@ -62,7 +62,6 @@ class ForwardList {
     bool IsEmpty() const noexcept;
     size_t Size() const noexcept;
     
-    void Swap(ForwardList& a);
     void EraseAfter(ForwardListIterator pos);
     void InsertAfter(ForwardListIterator pos, const T& value);
     ForwardListIterator Find(const T& value) const;
@@ -76,10 +75,5 @@ class ForwardList {
         return sizeof(Node);
     }
 };
-
-namespace std {
-    template <typename T>
-    void swap(ForwardList<T>& a, ForwardList<T>& b);
-}  // namespace std
 
 #include "forward_list.ipp"

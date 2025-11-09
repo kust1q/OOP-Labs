@@ -6,16 +6,23 @@
 
 #include "exceptions.hpp"
 
+namespace {
+    inline const size_t POOLSIZE = 4096;
+}
+
 class MemoryResource: public std::pmr::memory_resource {
 private:
+    size_t pool_size_{POOLSIZE};
     int8_t* pool_;
-    size_t pool_size_;
-    size_t block_size_;
-    std::map<void*, bool> blocks_;
+    std::map<void*, size_t> blocks_;
 
 public:
-    MemoryResource(size_t pool_size, size_t block_size);
+    MemoryResource();
     ~MemoryResource() override;
+    MemoryResource(const MemoryResource&) = delete;
+    MemoryResource& operator=(const MemoryResource&) = delete;
+    MemoryResource(MemoryResource&&) = delete;
+    MemoryResource& operator=(MemoryResource&&) = delete;
 
 protected:
     void* do_allocate(std::size_t bytes, std::size_t alignment) override;
