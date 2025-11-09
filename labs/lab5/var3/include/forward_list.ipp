@@ -46,22 +46,12 @@ typename ForwardList<T>::ForwardListIterator::pointer_type ForwardList<T>::Forwa
 
 template <typename T>
 ForwardList<T>::ForwardList(std::pmr::memory_resource* res): alloc_(res), head_(alloc_.allocate(1)), sz_(0) {
-    try {
-        alloc_.construct(head_);
-    } catch (...) {
-        alloc_.deallocate(head_, 1);
-        throw;
-    }
+    alloc_.construct(head_);
 }
 
 template <typename T>
 ForwardList<T>::ForwardList(size_t sz, std::pmr::memory_resource* res): alloc_(res), head_(alloc_.allocate(1)), sz_(sz) {
-    try {
-        alloc_.construct(head_);
-    } catch (...) {
-        alloc_.deallocate(head_, 1);
-        throw;
-    }
+    alloc_.construct(head_);
 
     Node* cur = head_;
     for (size_t i = 0; i < sz; ++i) {
@@ -79,12 +69,7 @@ ForwardList<T>::ForwardList(size_t sz, std::pmr::memory_resource* res): alloc_(r
 
 template <typename T>
 ForwardList<T>::ForwardList(const std::initializer_list<T>& values, std::pmr::memory_resource* res): alloc_(res), head_(alloc_.allocate(1)), sz_(values.size()) {
-    try {
-        alloc_.construct(head_);
-    } catch (...) {
-        alloc_.deallocate(head_, 1);
-        throw;
-    }
+    alloc_.construct(head_);
 
     Node* cur = head_;
     for (auto& val : values) {
@@ -102,12 +87,7 @@ ForwardList<T>::ForwardList(const std::initializer_list<T>& values, std::pmr::me
 
 template <typename T>
 ForwardList<T>::ForwardList(const ForwardList& other): alloc_(other.alloc_), head_(alloc_.allocate(1)), sz_(other.Size()) {
-    try {
-        alloc_.construct(head_);
-    } catch (...) {
-        alloc_.deallocate(head_, 1);
-        throw;
-    }
+    alloc_.construct(head_);
 
     Node* cur = head_;
     for (auto it = other.Begin(); it != other.End(); ++it) {
@@ -121,6 +101,13 @@ ForwardList<T>::ForwardList(const ForwardList& other): alloc_(other.alloc_), hea
         cur->next_ = new_node;
         cur = cur->next_;
     }
+}
+
+template <typename T>
+ForwardList<T>::ForwardList(ForwardList&& other) noexcept: alloc_(other.alloc_), head_(other.head_), sz_(other.sz_) {
+    other.head_ = other.alloc_.allocate(1);
+    other.alloc_.construct(other.head_);
+    other.sz_ = 0;
 }
 
 template <typename T>
@@ -144,6 +131,25 @@ ForwardList<T>& ForwardList<T>::operator=(const ForwardList& other) {
         ++sz_;
     }
     
+    return *this;
+}
+
+template <typename T>
+ForwardList<T>& ForwardList<T>::operator=(ForwardList&& other) noexcept {
+    if (this != &other) {
+        Clear();
+        std::destroy_at(head_);
+        alloc_.deallocate(head_, 1);
+
+        alloc_.~polymorphic_allocator();
+        new(&alloc_) std::pmr::polymorphic_allocator<Node>(other.alloc_.resource());
+        head_ = other.head_;
+        sz_ = other.sz_;
+        
+        other.head_ = alloc_.allocate(1);
+        other.alloc_.construct(other.head_);
+        other.sz_ = 0;
+    }
     return *this;
 }
 

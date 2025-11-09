@@ -12,12 +12,12 @@ namespace {
 
 class MemoryResource: public std::pmr::memory_resource {
 private:
-    size_t pool_size_{POOLSIZE};
+    size_t pool_size_;
     int8_t* pool_;
     std::map<void*, size_t> blocks_;
 
 public:
-    MemoryResource();
+    MemoryResource(size_t pool_size = POOLSIZE);
     ~MemoryResource() override;
     MemoryResource(const MemoryResource&) = delete;
     MemoryResource& operator=(const MemoryResource&) = delete;

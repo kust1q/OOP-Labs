@@ -267,6 +267,136 @@ TEST(MemoryResourceTest, FindWithPerson) {
     EXPECT_EQ(not_found, list.End());
 }
 
+// === Тесты на move семантику ===
+
+TEST(MemoryResourceTest, MoveConstructor) {
+    MemoryResource resource;
+    ForwardList<int> original(&resource);
+    original.PushFront(1);
+    original.PushFront(2);
+    original.PushFront(3);
+    
+    size_t original_size = original.Size();
+    int original_front = original.Front();
+    
+    ForwardList<int> moved = std::move(original);
+    
+    // Проверяем, что перемещенный список имеет правильные значения
+    ASSERT_EQ(moved.Size(), original_size);
+    ASSERT_EQ(moved.Front(), original_front);
+    
+    // Проверяем, что исходный список пуст
+    ASSERT_TRUE(original.IsEmpty());
+    ASSERT_EQ(original.Size(), 0);
+}
+
+TEST(MemoryResourceTest, MoveAssignment) {
+    MemoryResource resource;
+    ForwardList<int> original(&resource);
+    original.PushFront(1);
+    original.PushFront(2);
+    original.PushFront(3);
+    
+    ForwardList<int> target(&resource);
+    target.PushFront(10);
+    target.PushFront(20);
+    
+    size_t original_size = original.Size();
+    int original_front = original.Front();
+    
+    target = std::move(original);
+    
+    // Проверяем, что целевой список получил значения из исходного
+    ASSERT_EQ(target.Size(), original_size);
+    ASSERT_EQ(target.Front(), original_front);
+    
+    // Проверяем, что исходный список пуст
+    ASSERT_TRUE(original.IsEmpty());
+    ASSERT_EQ(original.Size(), 0);
+}
+
+TEST(MemoryResourceTest, MoveSelfAssignment) {
+    MemoryResource resource;
+    ForwardList<int> list(&resource);
+    list.PushFront(1);
+    list.PushFront(2);
+    
+    size_t original_size = list.Size();
+    int original_front = list.Front();
+    
+    // Попытка перемещения самого в себя
+    list = std::move(list);
+    
+    // Список должен остаться в том же состоянии
+    ASSERT_EQ(list.Size(), original_size);
+    ASSERT_EQ(list.Front(), original_front);
+}
+
+TEST_F(ListTest, MoveConstructorPreservesContent) {
+    size_t original_size = list.Size();
+    int original_front = list.Front();
+    
+    ForwardList<int> moved = std::move(list);
+    
+    ASSERT_EQ(moved.Size(), original_size);
+    ASSERT_EQ(moved.Front(), original_front);
+    
+    // Проверяем, что все элементы остались на месте
+    int expected_values[] = {7, 6, 5, 4, 3, 2, 1};
+    int i = 0;
+    for (auto it = moved.Begin(); it != moved.End(); ++it) {
+        ASSERT_EQ(*it, expected_values[i++]);
+    }
+    
+    ASSERT_TRUE(list.IsEmpty());
+}
+
+TEST_F(ListTest, MoveAssignmentPreservesContent) {
+    MemoryResource other_resource;
+    ForwardList<int> other(&other_resource);
+    other.PushFront(100);
+    other.PushFront(200);
+    
+    size_t original_size = list.Size();
+    int original_front = list.Front();
+    
+    other = std::move(list);
+    
+    ASSERT_EQ(other.Size(), original_size);
+    ASSERT_EQ(other.Front(), original_front);
+    
+    // Проверяем, что все элементы остались на месте
+    int expected_values[] = {7, 6, 5, 4, 3, 2, 1};
+    int i = 0;
+    for (auto it = other.Begin(); it != other.End(); ++it) {
+        ASSERT_EQ(*it, expected_values[i++]);
+    }
+    
+    ASSERT_TRUE(list.IsEmpty());
+}
+
+TEST(MemoryResourceTest, MoveWithComplexType) {
+    MemoryResource resource;
+    ForwardList<Person> original(&resource);
+    original.PushFront(Person("Alice", 30));
+    original.PushFront(Person("Bob", 25));
+    
+    ForwardList<Person> moved = std::move(original);
+    
+    ASSERT_EQ(moved.Size(), 2);
+    
+    auto it = moved.Begin();
+    EXPECT_EQ(it->name, "Bob");
+    EXPECT_EQ(it->age, 25);
+    ++it;
+    EXPECT_EQ(it->name, "Alice");
+    EXPECT_EQ(it->age, 30);
+    ++it;
+    EXPECT_EQ(it, moved.End());
+    
+    ASSERT_TRUE(original.IsEmpty());
+}
+
 int main(int argc, char **argv) {
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
