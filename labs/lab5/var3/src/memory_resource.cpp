@@ -10,7 +10,7 @@ MemoryResource::MemoryResource(size_t pool_size, size_t block_size): pool_size_(
 
     pool_ = new int8_t[pool_size];
     for (size_t i = 0; i < pool_size; i += block_size) {
-        void* ptr = static_cast<void*>(pool_ + i);
+        void* ptr = reinterpret_cast<void*>(pool_ + i);
         blocks_[ptr] = false;
     }
 }

@@ -132,7 +132,7 @@ ForwardList<T>& ForwardList<T>::operator=(const ForwardList& other) {
     if (this == &other) {
         return *this;
     }
-    ForwardList temp = other;
+    ForwardList temp(other);
     Swap(temp);
     return *this;
 }
@@ -167,7 +167,7 @@ size_t ForwardList<T>::Size() const noexcept {
 
 template <typename T>
 void ForwardList<T>::Swap(ForwardList& a) {
-    std::swap(head_, a.head_);
+    std::swap(head_->next_, a.head_->next_);
     std::swap(sz_, a.sz_);
 }
 
@@ -199,7 +199,6 @@ void ForwardList<T>::InsertAfter(ForwardListIterator pos, const T& value) {
         alloc.deallocate(new_node, 1);
         throw;
     }
-
     Node* temp = pos.current_->next_;
     pos.current_->next_ = new_node;
     new_node->next_ = temp;

@@ -7,6 +7,23 @@
 #include "forward_list.hpp"
 #include "memory_resource.hpp"
 
+struct Person {
+    std::string name;
+    int age;
+
+    Person() = default;
+    Person(const std::string& n, int a) : name(n), age(a) {}
+
+    bool operator==(const Person& other) const {
+        return name == other.name && age == other.age;
+    }
+
+    friend std::ostream& operator<<(std::ostream& os, const Person& p) {
+        os << "{name: \"" << p.name << "\", age: " << p.age << "}";
+        return os;
+    }
+};
+
 class ListTest : public testing::Test {
 protected:
     void SetUp() override {
@@ -219,6 +236,85 @@ TEST_F(ListTest, Clear) {
     list.Clear();
     ASSERT_TRUE(list.IsEmpty());
     ASSERT_EQ(list.Size(), 0);
+}
+
+TEST(MemoryResourceTest, WithComplexType) {
+    MemoryResource resource(4096, ForwardList<Person>::node_size());
+    ForwardList<Person> list(&resource);
+
+    list.PushFront(Person("Alice", 30));
+    list.PushFront(Person("Bob", 25));
+
+    ASSERT_EQ(list.Size(), 2);
+
+    auto it = list.Begin();
+    EXPECT_EQ(it->name, "Bob");
+    EXPECT_EQ(it->age, 25);
+    ++it;
+    EXPECT_EQ(it->name, "Alice");
+    EXPECT_EQ(it->age, 30);
+    ++it;
+    EXPECT_EQ(it, list.End());
+}
+
+TEST(MemoryResourceTest, CopyWithComplexType) {
+    MemoryResource resource(4096, ForwardList<Person>::node_size());
+    ForwardList<Person> original(&resource);
+    original.PushFront(Person("item1", 10));
+    original.PushFront(Person("item2", 20));
+
+    ForwardList<Person> copy(original);
+
+    ASSERT_EQ(copy.Size(), 2);
+
+    auto it = copy.Begin();
+    EXPECT_EQ(it->name, "item2");
+    EXPECT_EQ(it->age, 20);
+    ++it;
+    EXPECT_EQ(it->name, "item1");
+    EXPECT_EQ(it->age, 10);
+    ++it;
+    EXPECT_EQ(it, copy.End());
+}
+
+TEST(MemoryResourceTest, FindWithPerson) {
+    MemoryResource resource(4096, ForwardList<Person>::node_size());
+    ForwardList<Person> list(&resource);
+    list.PushFront(Person("Alice", 30));
+    list.PushFront(Person("Bob", 25));
+
+    auto it = list.Find(Person("Bob", 25));
+    EXPECT_NE(it, list.End());
+    EXPECT_EQ(it->name, "Bob");
+    EXPECT_EQ(it->age, 25);
+
+    auto not_found = list.Find(Person("Charlie", 40));
+    EXPECT_EQ(not_found, list.End());
+}
+
+TEST(MemoryResourceTest, SwapWithPerson) {
+    MemoryResource resource1(4096, ForwardList<Person>::node_size());
+    MemoryResource resource2(4096, ForwardList<Person>::node_size());
+
+    ForwardList<Person> list1(&resource1);
+    list1.PushFront(Person("Alice", 30));
+
+    ForwardList<Person> list2(&resource2);
+    list2.PushFront(Person("Bob", 25));
+    list2.PushFront(Person("Charlie", 35));
+
+    size_t old_list_size = list1.Size();
+    size_t old_lst_size = list2.Size();
+
+    std::swap(list1, list2);
+
+    ASSERT_EQ(list2.Size(), old_list_size);
+    ASSERT_EQ(list1.Size(), old_lst_size);
+
+    ASSERT_EQ(list2.Front().name, "Alice");
+    ASSERT_EQ(list1.Front().name, "Charlie");
+    list1.PopFront();
+    ASSERT_EQ(list1.Front().name, "Bob");
 }
 
 int main(int argc, char **argv) {
