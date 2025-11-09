@@ -72,10 +72,6 @@ class ForwardList {
     void PopFront();
     
     ~ForwardList();
-
-    static constexpr size_t node_size() {
-        return sizeof(Node);
-    }
 };
 
 #include "forward_list.ipp"
