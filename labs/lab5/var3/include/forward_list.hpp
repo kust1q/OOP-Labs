@@ -51,8 +51,8 @@ class ForwardList {
 
   public:
     ForwardList(std::pmr::memory_resource* res = std::pmr::get_default_resource());
-    explicit ForwardList(size_t sz, std::pmr::memory_resource* res = std::pmr::new_delete_resource());
-    ForwardList(const std::initializer_list<T>& values, std::pmr::memory_resource* res = std::pmr::new_delete_resource());
+    explicit ForwardList(size_t sz, std::pmr::memory_resource* res = std::pmr::get_default_resource());
+    ForwardList(const std::initializer_list<T>& values, std::pmr::memory_resource* res = std::pmr::get_default_resource());
     ForwardList(const ForwardList& other);
     ForwardList(ForwardList&& other) noexcept;
     ForwardList& operator=(const ForwardList& other);
