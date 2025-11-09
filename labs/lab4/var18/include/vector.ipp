@@ -4,11 +4,11 @@
 
 namespace figure {
     template <typename T>
-    Vector<T>::Vector() : sz_(0), cap_(0), arr_(std::shared_ptr<int8_t[]>(nullptr)) {}
+    Vector<T>::Vector() : sz_(0), cap_(0), arr_(std::shared_ptr<T[]>(nullptr)) {}
 
     template <typename T>
     Vector<T>::Vector(size_t count, const T& value) : sz_(count), cap_(count) {
-        arr_ = std::shared_ptr<int8_t[]>(new int8_t[sizeof(T) * cap_], deleter);
+        arr_ = std::shared_ptr<T[]>(new T[cap_], deleter);
         for (size_t i = 0; i < sz_; ++i) {
             new (Data() + i) T(value);
         }
@@ -16,7 +16,7 @@ namespace figure {
 
     template <typename T>
     Vector<T>::Vector(const Vector& other) : sz_(other.sz_), cap_(other.cap_) {
-        arr_ = std::shared_ptr<int8_t[]>(new int8_t[sizeof(T) * cap_], deleter);
+        arr_ = std::shared_ptr<T[]>(new T[cap_], deleter);
         for (size_t i = 0; i < sz_; ++i) {
             new (Data() + i) T(other[i]);
         }
@@ -48,7 +48,7 @@ namespace figure {
 
     template <typename T>
     Vector<T>::Vector(const std::initializer_list<T>& init) : sz_(init.size()), cap_(init.size()) {
-        arr_ = std::shared_ptr<int8_t[]>(new int8_t[sizeof(T) * cap_], deleter);
+        arr_ = std::shared_ptr<T[]>(new T[cap_], deleter);
         size_t i = 0;
         for (const T& val : init) {
             new (Data() + i) T(std::move(val));
@@ -83,7 +83,7 @@ namespace figure {
 
     template <typename T>
     T* Vector<T>::Data() const noexcept {
-        return reinterpret_cast<T*>(arr_.get());
+        return arr_.get();
     }
 
     template <typename T>
@@ -101,8 +101,8 @@ namespace figure {
         if (new_cap <= cap_) {
             return;
         }
-        std::shared_ptr<int8_t[]> newArr = std::shared_ptr<int8_t[]>(new int8_t[sizeof(T) * new_cap], deleter);
-        T* newData = reinterpret_cast<T*>(newArr.get());
+        std::shared_ptr<T[]> newArr = std::shared_ptr<T[]>(new T[new_cap], deleter);
+        T* newData = newArr.get();
         for (size_t i = 0; i < sz_; i++) {
             new (newData + i) T(std::move(Data()[i]));
             Data()[i].~T(); 
@@ -191,7 +191,7 @@ namespace figure {
     }
 
     template <typename T>
-    template<typename U>
+    template <typename U>
     U Vector<T>::CommonArea() {
         U res = 0.0;
         for (size_t i = 0; i < sz_; ++i) {

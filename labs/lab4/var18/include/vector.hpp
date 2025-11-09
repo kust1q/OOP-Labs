@@ -52,10 +52,10 @@ namespace figure {
       private:
         size_t sz_;
         size_t cap_;
-        std::shared_ptr<int8_t[]> arr_;
+        std::shared_ptr<T[]> arr_;
 
         void Swap(Vector& v);
-        inline static auto deleter = [](int8_t* ptr) {
+        inline static auto deleter = [](T* ptr) {
             delete[] ptr;
         };
     };
